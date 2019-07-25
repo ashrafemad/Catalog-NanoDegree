@@ -5,7 +5,8 @@ from database_setup import Category, Base, Item
 # Connect to Database and create database session
 from sqlalchemy import create_engine, desc
 
-engine = create_engine('sqlite:///catalog.db', connect_args={'check_same_thread': False})
+engine = create_engine('sqlite:///catalog.db',
+                       connect_args={'check_same_thread': False})
 Base.metadata.bind = engine
 
 DBSession = sessionmaker(bind=engine)

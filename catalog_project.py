@@ -4,11 +4,12 @@ import string
 
 import httplib2
 import requests
-from flask import Flask, render_template, request, redirect, jsonify, url_for, flash, session as login_session, \
-    make_response
+from flask import Flask, render_template, request, redirect,\
+    jsonify, url_for, flash, session as login_session, make_response
 from oauth2client.client import flow_from_clientsecrets, FlowExchangeError
-from crud_functions import category_listing, item_listing, category_create, get_category, category_update, \
-    category_delete, category_item_listing, item_create, get_item, item_save, item_delete
+from crud_functions import category_listing, item_listing,\
+    category_create, get_category, category_update, category_delete,\
+    category_item_listing, item_create, get_item, item_save, item_delete
 app = Flask(__name__)
 
 CLIENT_ID = json.loads(open('client_secrets.json').read())['web']['client_id']
@@ -18,20 +19,22 @@ CLIENT_ID = json.loads(open('client_secrets.json').read())['web']['client_id']
 def show_categories():
     categories = category_listing()
     last_items = item_listing()[:9]
-    return render_template('category.html', categories=categories, items=last_items,
+    return render_template('category.html',
+                           categories=categories, items=last_items,
                            username=login_session.get('username', None),
                            user_picture=login_session.get('picture', None))
 
 
-@app.route('/category/new/', methods=['GET','POST'])
+@app.route('/category/new/', methods=['GET', 'POST'])
 def add_category():
     if not login_session.get('username'):
         return redirect(url_for('login'))
     if request.method == 'POST':
         is_published = request.form.get('is_published', False)
-        if is_published != False:
+        if not is_published:
             is_published = True
-        category = category_create(name=request.form['name'], is_published=is_published)
+        category = category_create(name=request.form['name'],
+                                   is_published=is_published)
         flash('New Category %s Successfully Created' % category.name)
         return redirect(url_for('show_categories'))
     else:
@@ -46,9 +49,10 @@ def category_edit(category_name):
 
     if request.method == 'POST':
         is_published = request.form.get('is_published', False)
-        if is_published != False:
+        if not is_published:
             is_published = True
-        category_update(category.id, request.form['name'], is_published=is_published)
+        category_update(category.id, request.form['name'],
+                        is_published=is_published)
         flash('Category Successfully Edited %s' % category.name)
         return redirect(url_for('show_categories'))
     else:
@@ -81,19 +85,21 @@ def category_json():
     categories = category_listing()
     categories_json = [c.serialize for c in categories]
     for cat in categories_json:
-        if category_item_listing(category_id=cat['id']).count() > 0:
-            cat['items'] = [i.serialize for i in category_item_listing(category_id=cat['id'])]
+        if category_item_listing(category_id=cat['id']).count() > 0:  # noqa
+            cat['items'] = [i.serialize for i in category_item_listing(category_id=cat['id'])]  # noqa
     return jsonify(categories_json)
 
 
-@app.route('/item/new/',methods=['GET','POST'])
+@app.route('/item/new/', methods=['GET', 'POST'])
 def add_item():
     if not login_session.get('username'):
         return redirect(url_for('login'))
     categories = category_listing()
     if request.method == 'POST':
-        item = item_create(category_id=request.form['category_id'], name=request.form['name'], description=request.form['description'])
-        flash('New %s Item Successfully Created' % (item.name))
+        item = item_create(category_id=request.form['category_id'],
+                           name=request.form['name'],
+                           description=request.form['description'])
+        flash('New %s Item Successfully Created' % item.name)
         return redirect(url_for('show_categories'))
     else:
         return render_template('item_form.html', categories=categories)
@@ -116,7 +122,8 @@ def edit_item(item_name):
         flash('New %s Item Successfully Updated' % (item.name))
         return redirect(url_for('show_categories'))
     else:
-        return render_template('item_form.html', categories=categories, item=item)
+        return render_template('item_form.html',
+                               categories=categories, item=item)
 
 
 @app.route('/item/<string:item_name>/', methods=['GET'])
@@ -162,9 +169,6 @@ def fbconnect():
         app_id, app_secret, access_token)
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
-    userinfo_url = "https://graph.facebook.com/v2.8/me"
-    token = result.split("&")[0]
-
     url = 'https://graph.facebook.com/v2.8/me?fields=id%2Cname%2Cemail%2Cpicture&access_token=' + access_token  # noqa
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
@@ -188,7 +192,7 @@ def fbdisconnect():
     access_token = login_session['access_token']
     url = 'https://graph.facebook.com/%s/permissions?access_token=%s' % (facebook_id, access_token)  # noqa
     h = httplib2.Http()
-    result = h.request(url, 'DELETE')[1]
+    h.request(url, 'DELETE')[1]
     return "you have been logged out"
 
 
@@ -309,7 +313,6 @@ def logout():
 
 
 if __name__ == '__main__':
-  app.secret_key = 'super_secret_key'
-  app.debug = True
-  app.run(host='0.0.0.0', port=8000)
-
+    app.secret_key = 'super_secret_key'
+    app.debug = True
+    app.run(host='0.0.0.0', port=8000)
