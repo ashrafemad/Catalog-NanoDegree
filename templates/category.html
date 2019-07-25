@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Catalog App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+<body>
+
+
+<nav style="margin-bottom: 30px" class="navbar navbar-light bg-light">
+    <h1 style="margin: 20px">
+        <a style="text-decoration: none" href="{{url_for('show_categories')}}"> Catalog App </a>
+    </h1>
+    {% if username %}
+    <div>
+
+        <p style="display: inline">Hi, {{username}}</p>
+        {% if user_picture %}
+        <img style="height: 50px; width: 50px; border-radius: 50%" src="{{user_picture}}">
+        {% endif %}
+        <a style="font-size: xx-large" href="{{ url_for('logout') }}"><span>&#10132;</span></a>
+    </div>
+
+    {% else %}
+    <a style="font-size: x-large" href="{{ url_for('login') }}"><span>Login</span></a>
+
+    {% endif %}
+</nav>
+
+
+<div class="container">
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+
+    <ul>
+        {% for message in messages %}
+        <li><strong style="color: white"> {{ message }} </strong></li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+    <div class="row">
+        {% if categories %}
+        <div style="margin-bottom: 20px" class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    Categories {% if username %} <a href="{{url_for('add_category')}}">Add</a> {% endif %}
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% for cat in categories %}
+                    <li class="list-group-item">
+                        <a href="{{url_for('show_category_items', category_name=cat.name)}}">{{cat.name}}</a>
+                        {% if username %}
+                        <span style="float: right;">
+                            <a href="{{url_for('delete_category', category_name = cat.name)}}"> X </a>
+                        </span>
+                        <span style="margin-right: 15px; float: right;">
+                            <a href="{{url_for('category_edit', category_name=cat.name)}}">&#9998;</a>
+                        </span>
+                        {% endif %}
+                       </li>
+                    {% endfor %}
+
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    {% if category %}
+                        {{category.name}} Items
+                    {% else %}
+                        Latest Items
+                    {% endif %}
+                   {% if username %} <a href="{{url_for('add_item')}}">Add</a> {% endif %}
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% for item in items %}
+                    <li class="list-group-item">
+                        <a href="{{url_for('item_details', item_name=item.name)}}">{{item.name}}</a>
+                        <p style="display: inline; font-style: italic;"> ({{item.category.name}})</p>
+                        {% if username %}
+                        <span style="float: right;">
+                            <a href="{{url_for('delete_item', item_name = item.name)}}"> X </a>
+                        </span>
+                        <span style="margin-right: 15px; float: right;">
+                            <a href="{{url_for('edit_item', item_name=item.name)}}">&#9998;</a>
+                        </span>
+                        {% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

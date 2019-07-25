@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add new category</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<nav style="margin-bottom: 30px" class="navbar navbar-light bg-light">
+    <h1 style="margin: 20px">
+        <a style="text-decoration: none" href="{{url_for('show_categories')}}"> Catalog App </a>
+    </h1>
+</nav>
+<div class="container">
+<div class="row">
+
+
+<form method="post">
+    <div class="form-group">
+        <label style="color: white;" for="category_name">Name</label>
+        <input {% if category %} value="{{category.name}}" {% endif %} type="text" class="form-control" name="name" id="category_name" required placeholder="Enter name">
+    </div>
+
+    <div class="form-check">
+        <label class="form-check-label">
+            <input {% if category and category.is_published %} checked {% endif %} name="is_published" type="checkbox" class="form-check-input"> <h4 style="color: white"> Is published </h4>
+        </label>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+</div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,25 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Delete Item</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+<nav style="margin-bottom: 30px" class="navbar navbar-light bg-light">
+    <h1 style="margin: 20px">
+        <a style="text-decoration: none" href="{{url_for('show_categories')}}"> Catalog App </a>
+    </h1>
+</nav>
+<div class="container">
+    <h1 style="color: white;"> Are you sure you want to delete {{item.name}}? </h1>
+    <form action="#" method='post'>
+        <input type='submit' , value='Delete'>
+    </form>
+    <a href="{{url_for('show_categories')}}"> Cancel </a>
+</div>
+</body>
+
+</html>

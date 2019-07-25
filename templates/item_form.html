@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add new item</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<nav style="margin-bottom: 30px" class="navbar navbar-light bg-light">
+    <h1 style="margin: 20px">
+        <a style="text-decoration: none" href="{{url_for('show_categories')}}"> Catalog App </a>
+    </h1>
+</nav>
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+
+
+            <form method="post">
+                <div class="form-group">
+                    <label style="color: white;" for="item_name">Name</label>
+                    <input {% if item %} value="{{item.name}}" {% endif %} type="text" class="form-control" name="name"
+                           id="item_name" required placeholder="Enter name">
+                </div>
+
+                <div class="form-group">
+                    <label style="color: white;" for="description">Description:</label>
+                    <textarea name="description" class="form-control" rows="5" id="description">{%if item%}{{item.description}}{% endif %}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label style="color: white;" for="sel1">Select Category:</label>
+                    <select name="category_id" class="form-control" id="ctegory">
+                        {% for category in categories %}
+                        <option {% if item %} {% if item.category_id== category.id %} selected {% endif %} {% endif %}
+                                value="{{category.id}}">{{category.name}}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-dark">Submit</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

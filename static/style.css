@@ -1,0 +1,7 @@
+.borderless td, .borderless th {
+    border: none;
+}
+
+body {
+    background-image: url("background.jpg");
+}
