@@ -1,7 +1,7 @@
 # Catalog
 
 ## Description
-Catalog project for the nano degree, it's about implementing CRUD operations and API.
+Catalog project for the nano degree, it's about implementing CRUD operations and API using Flask and SqlAlchemy.
 
 ## Prerequisites
 - Python 2
