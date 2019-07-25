@@ -17,9 +17,11 @@ Note: When done with the VM, type exit and then `vagrant suspend` to pause the V
 
 ## Running the Program
 To run the program, first we need to create the database and put some data on it:
+
 run `python data_population.py`
 
 then we can run our project:
+
 run `python catalog_project.py` to run the project
 
 ```
