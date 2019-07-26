@@ -11,7 +11,7 @@ Catalog project for the nano degree, it's about implementing CRUD operations and
 ## Installing
 To create an environment to run the project, install Vagrant and Virtual Box.
 
-Start the Virtual Machine(VM) by running `vagrant up` in the directory that contains the "Vagrantfile" and then SSH into the VM using `vagrant ssh`. The first time `vagrant up` is run the VM will be configured based on information in the "Vagrantfile". Navigate to `/vagrant/<projetc_directory>` to access the project's files.
+Start the Virtual Machine(VM) by running `vagrant up` in the directory that contains the "Vagrantfile" and then SSH into the VM using `vagrant ssh`. The first time `vagrant up` is run the VM will be configured based on information in the "Vagrantfile". Navigate to `/vagrant/<project_directory>` to access the project's files.
 
 Then install dependencies:
 
