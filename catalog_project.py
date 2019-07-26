@@ -132,7 +132,7 @@ def add_item():
 def edit_item(item_name):
     if not login_session.get('username'):
         return redirect(url_for('login'))
-    categories = category_listing()
+    categories = get_user_categories(login_session['email'])
     item = get_item(item_name)
     if login_session['email'] != item.category.author.email:
         flash('You are not authorized to update this item')
