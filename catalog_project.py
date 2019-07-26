@@ -105,7 +105,11 @@ def category_json():
 
 @app.route('/api/category/<string:category_name>/')
 def category_items_json(category_name):
-    category = get_category(category_name).serialize
+    category = get_category(category_name)
+    if category:
+        category = category.serialize
+    else:
+        return redirect(url_for('category_json'))
     if category_item_listing(category_id=category['id']).count() > 0:  # noqa
         category['items'] = [i.serialize for i in category_item_listing(category_id=category['id'])]  # noqa
     return jsonify(category)
