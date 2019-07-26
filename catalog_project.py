@@ -7,9 +7,12 @@ import requests
 from flask import Flask, render_template, request, redirect,\
     jsonify, url_for, flash, session as login_session, make_response
 from oauth2client.client import flow_from_clientsecrets, FlowExchangeError
-from crud_functions import category_listing, item_listing,\
-    category_create, get_category, category_update, category_delete,\
-    category_item_listing, item_create, get_item, item_save, item_delete
+from crud_functions import category_listing, item_listing, \
+    category_create, get_category, category_update, category_delete, \
+    category_item_listing, item_create, get_item,\
+    item_save, item_delete, get_user, \
+    get_user_categories, user_create
+
 app = Flask(__name__)
 
 CLIENT_ID = json.loads(open('client_secrets.json').read())['web']['client_id']
@@ -29,12 +32,14 @@ def show_categories():
 def add_category():
     if not login_session.get('username'):
         return redirect(url_for('login'))
+    user = get_user(login_session['email'])
     if request.method == 'POST':
         is_published = request.form.get('is_published', False)
-        if not is_published:
+        if not not is_published:
             is_published = True
         category = category_create(name=request.form['name'],
-                                   is_published=is_published)
+                                   is_published=is_published,
+                                   author_id=user.id)
         flash('New Category %s Successfully Created' % category.name)
         return redirect(url_for('show_categories'))
     else:
@@ -46,11 +51,16 @@ def category_edit(category_name):
     if not login_session.get('username'):
         return redirect(url_for('login'))
     category = get_category(name=category_name)
+    if login_session['email'] != category.author.email:
+        flash('You are not authorized to update this category')
+        return redirect(url_for('show_categories'))
 
     if request.method == 'POST':
+        print request.form
         is_published = request.form.get('is_published', False)
-        if not is_published:
+        if not not is_published:
             is_published = True
+        print is_published
         category_update(category.id, request.form['name'],
                         is_published=is_published)
         flash('Category Successfully Edited %s' % category.name)
@@ -64,6 +74,9 @@ def delete_category(category_name):
     if not login_session.get('username'):
         return redirect(url_for('login'))
     category = get_category(name=category_name)
+    if login_session['email'] != category.author.email:
+        flash('You are not authorized to delete this category')
+        return redirect(url_for('show_categories'))
     if request.method == 'POST':
         category_delete(id=category.id)
         flash('%s Successfully Deleted' % category.name)
@@ -80,7 +93,7 @@ def show_category_items(category_name):
     return render_template('category.html', category=category, items=items)
 
 
-@app.route('/category/JSON')
+@app.route('/api/category/')
 def category_json():
     categories = category_listing()
     categories_json = [c.serialize for c in categories]
@@ -90,11 +103,21 @@ def category_json():
     return jsonify(categories_json)
 
 
+@app.route('/api/category/<string:category_name>/')
+def category_items_json(category_name):
+    category = get_category(category_name).serialize
+    if category_item_listing(category_id=category['id']).count() > 0:  # noqa
+        category['items'] = [i.serialize for i in category_item_listing(category_id=category['id'])]  # noqa
+    return jsonify(category)
+
+
 @app.route('/item/new/', methods=['GET', 'POST'])
 def add_item():
+    # Add category item
+    # will only show categories created by user in category list
     if not login_session.get('username'):
         return redirect(url_for('login'))
-    categories = category_listing()
+    categories = get_user_categories(login_session['email'])
     if request.method == 'POST':
         item = item_create(category_id=request.form['category_id'],
                            name=request.form['name'],
@@ -111,6 +134,9 @@ def edit_item(item_name):
         return redirect(url_for('login'))
     categories = category_listing()
     item = get_item(item_name)
+    if login_session['email'] != item.category.author.email:
+        flash('You are not authorized to update this item')
+        return redirect(url_for('show_categories'))
     if request.method == 'POST':
         if request.form.get('name', None):
             item.name = request.form['name']
@@ -136,6 +162,9 @@ def delete_item(item_name):
     if not login_session.get('username'):
         return redirect(url_for('login'))
     item = get_item(name=item_name)
+    if login_session['email'] != item.category.author.email:
+        flash('You are not authorized to delete this item')
+        return redirect(url_for('show_categories'))
     if request.method == 'POST':
         item_delete(id=item.id)
         flash('%s Successfully Deleted' % item.name)
@@ -180,7 +209,10 @@ def fbconnect():
     login_session['facebook_id'] = data["id"]
     login_session['access_token'] = access_token
     login_session['picture'] = data["picture"]["data"]["url"]
-
+    if not get_user(login_session['email']):
+        user_create(login_session['email'],
+                    login_session['username'],
+                    login_session['picture'])
     flash("Now logged in as %s" % login_session['username'], 'success')
     return login_session['username']
 
@@ -256,6 +288,10 @@ def gconnect():
     login_session['username'] = data['name']
     login_session['picture'] = data['picture']
     login_session['email'] = data['email']
+    if not get_user(login_session['email']):
+        user_create(login_session['email'],
+                    login_session['username'],
+                    login_session['picture'])
     flash("you are now logged in as %s" % login_session['username'], 'success')
     return login_session['username']
 

@@ -1,6 +1,6 @@
 from sqlalchemy.orm import sessionmaker
 
-from database_setup import Category, Base, Item
+from database_setup import Category, Base, Item, Author
 
 # Connect to Database and create database session
 from sqlalchemy import create_engine, desc
@@ -11,6 +11,19 @@ Base.metadata.bind = engine
 
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
+
+
+# Author CRUD
+def get_user(email):
+    user = session.query(Author).filter(Author.email == email).first()
+    return user
+
+
+def user_create(email, username, picture):
+    user = Author(email=email, username=username, picture=picture)
+    session.add(user)
+    session.commit()
+    return session.query(Author).order_by(desc(Author.id)).first()
 
 
 def category_listing():
@@ -24,8 +37,16 @@ def get_category(name):
     return category
 
 
-def category_create(name, is_published):
-    category = Category(name=name, is_published=is_published)
+def get_user_categories(email):
+    user = get_user(email)
+    categories = session.query(Category).filter(Category.author == user)
+    return categories
+
+
+def category_create(name, is_published, author_id):
+    category = Category(name=name,
+                        is_published=is_published,
+                        author_id=author_id)
     session.add(category)
     session.commit()
     return session.query(Category).order_by(desc(Category.id)).first()
@@ -35,8 +56,7 @@ def category_update(id, name=None, is_published=None):
     category = session.query(Category).get(ident=id)
     if name:
         category.name = name
-    if is_published:
-        category.is_published = is_published
+    category.is_published = is_published
     session.commit()
     return category
 

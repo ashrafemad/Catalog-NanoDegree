@@ -1,6 +1,10 @@
 import random
 
-from crud_functions import category_create, item_create
+from crud_functions import category_create, item_create, user_create
+
+user = user_create(email='email@provider.com',
+                   username='admin',
+                   picture='https://via.placeholder.com/350x150')
 
 category_names = ['Soccer', 'Basketball', 'Baseball', 'Snowboarding', 'Hockey']
 category_ids = []
@@ -11,7 +15,7 @@ But I must explain to you how all this mistaken idea of denouncing pleasure and 
 '''  # noqa
 
 for category in category_names:
-    category_ids.append(category_create(category, True).id)
+    category_ids.append(category_create(category, True, user.id).id)
 
 for item in item_names:
     item_create(random.choice(category_ids), item, description)
